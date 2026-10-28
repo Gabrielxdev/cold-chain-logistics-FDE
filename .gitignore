@@ -1,0 +1,21 @@
+.env
+.env.*
+*.env
+__pycache__/
+venv/
+.venv/
+
+# Documentacao e instrucoes locais
+*.[mM][dD]
+*.[pP][dD][fF]
+/transcrição-do-curso.txt
+
+# Arquivos CSV em qualquer pasta
+*.[cC][sS][vV]
+
+# Arquivos CSV e Excel em data/ e suas subpastas
+/data/**/*.[cC][sS][vV]
+/data/**/*.[xX][lL][sS]
+/data/**/*.[xX][lL][sS][xX]
+/data/**/*.[xX][lL][sS][mM]
+/data/**/*.[xX][lL][sS][bB]
