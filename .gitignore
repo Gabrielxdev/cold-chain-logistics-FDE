@@ -1,11 +1,13 @@
 .env
 .env.*
+.env copy
 *.env
 __pycache__/
 venv/
 .venv/
 
 # Documentacao e instrucoes locais
+*.txt
 *.[mM][dD]
 *.[pP][dD][fF]
 /transcrição-do-curso.txt
