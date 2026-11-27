@@ -244,7 +244,9 @@ The solution runs on **two EC2 instances in `us-east-2`**, separating compute fr
 
 ### CI/CD pipeline (`.github/workflows/deploy.yml`)
 
-Every push to `main` deploys automatically:
+> **Status:** this was a study project and the AWS environment has been shut down, so automatic deploys are disabled (the workflow now runs only via *Run workflow*). The video and screenshots show the app running.
+
+When the infrastructure is up, every push to `main` deploys automatically:
 
 1. **Authenticate with AWS via OIDC** — GitHub assumes an IAM role with short-lived credentials; no AWS access keys are stored anywhere.
 2. **Open SSH just for the runner** — detects the runner's public IPv4 and adds a temporary `/32` rule on port 22 to the security group.

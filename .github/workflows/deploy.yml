@@ -1,10 +1,11 @@
-# Push na main inicia o deploy; Run workflow também fica disponível.
-# Configure a role OIDC antes do primeiro push: docs/guia-deploy-automatico.md.
+# Deploy automático desativado: as VMs do projeto de estudo foram encerradas.
+# Para reativar, recrie a infraestrutura e volte a adicionar o gatilho:
+#   push:
+#     branches: [main]
+# Enquanto isso, o deploy só roda manualmente (Actions → Run workflow).
 name: Deploy EC2 App
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
