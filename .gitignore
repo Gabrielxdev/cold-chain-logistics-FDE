@@ -15,6 +15,7 @@ venv/
 # Prompt necessario para executar a aplicacao
 !/src/prompts/system_prompt.txt
 *.[mM][dD]
+!/README.md
 *.[pP][dD][fF]
 /transcrição-do-curso.txt
 

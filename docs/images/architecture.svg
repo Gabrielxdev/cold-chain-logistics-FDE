@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="940" viewBox="0 0 1600 940" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f7a7a"/>
+    </marker>
+    <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8a94a6"/>
+    </marker>
+    <style>
+      .panel { fill:#ffffff; stroke:#1f7a7a; stroke-width:3; }
+      .title { font-size:22px; font-weight:700; fill:#0f4c5c; }
+      .card { fill:#f2f8f8; stroke:#9cc9c9; stroke-width:1.5; }
+      .dark { fill:#0f4c5c; }
+      .h { font-size:16px; font-weight:700; fill:#13293d; }
+      .t { font-size:13px; fill:#3d4b5c; }
+      .m { font-size:12px; fill:#1f7a7a; font-family:Consolas, monospace; }
+      .w { font-size:15px; font-weight:700; fill:#ffffff; }
+      .wt { font-size:12px; fill:#d7ecec; }
+      .ic { font-size:30px; }
+      .flow { stroke:#1f7a7a; stroke-width:3; fill:none; marker-end:url(#arr); }
+      .flowg { stroke:#8a94a6; stroke-width:2.5; fill:none; stroke-dasharray:7 5; marker-end:url(#arrg); }
+      .lbl { font-size:12px; fill:#1f7a7a; font-weight:600; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="940" fill="#f7fafb"/>
+  <text x="800" y="44" text-anchor="middle" font-size="28" font-weight="800" fill="#0f4c5c">Cold-Chain Logistics — AI Forward Deployed Engineer Agent</text>
+  <text x="800" y="70" text-anchor="middle" font-size="15" fill="#5b6b7c">Agentic RAG + Text-to-SQL + live API tools, orchestrated by LangGraph and powered by DeepSeek, deployed on AWS EC2</text>
+
+  <!-- 1. USER -->
+  <rect class="panel" x="20" y="95" width="190" height="460" rx="18"/>
+  <text class="title" x="115" y="128" text-anchor="middle">User</text>
+  <text class="ic" x="115" y="200" text-anchor="middle">🧑‍💼</text>
+  <text class="h" x="115" y="232" text-anchor="middle">Night-shift</text>
+  <text class="h" x="115" y="252" text-anchor="middle">Dispatcher</text>
+  <text class="t" x="115" y="290" text-anchor="middle">asks in natural</text>
+  <text class="t" x="115" y="308" text-anchor="middle">language:</text>
+  <rect class="card" x="35" y="325" width="160" height="110" rx="10"/>
+  <text class="t" x="115" y="350" text-anchor="middle" font-style="italic">"Which trucks</text>
+  <text class="t" x="115" y="368" text-anchor="middle" font-style="italic">breach the cold</text>
+  <text class="t" x="115" y="386" text-anchor="middle" font-style="italic">chain and what</text>
+  <text class="t" x="115" y="404" text-anchor="middle" font-style="italic">does the SOP say</text>
+  <text class="t" x="115" y="422" text-anchor="middle" font-style="italic">I must do?"</text>
+  <text class="ic" x="115" y="490" text-anchor="middle">🌐</text>
+  <text class="t" x="115" y="520" text-anchor="middle">Browser :8501</text>
+
+  <!-- 2. PRESENTATION -->
+  <rect class="panel" x="240" y="95" width="230" height="460" rx="18"/>
+  <text class="title" x="355" y="128" text-anchor="middle">Presentation</text>
+  <text class="ic" x="355" y="182" text-anchor="middle">🎈</text>
+  <text class="h" x="355" y="210" text-anchor="middle">Streamlit UI</text>
+  <text class="m" x="355" y="230" text-anchor="middle">src/ui.py</text>
+  <rect class="card" x="258" y="250" width="194" height="80" rx="10"/>
+  <text class="h" x="355" y="276" text-anchor="middle">📟 Dispatch Console</text>
+  <text class="t" x="355" y="298" text-anchor="middle">chat + live tool progress</text>
+  <text class="t" x="355" y="316" text-anchor="middle">session thread_id</text>
+  <rect class="card" x="258" y="345" width="194" height="80" rx="10"/>
+  <text class="h" x="355" y="371" text-anchor="middle">🛡️ Audit Trail</text>
+  <text class="t" x="355" y="393" text-anchor="middle">admin-gated view of</text>
+  <text class="t" x="355" y="411" text-anchor="middle">every node / tool call</text>
+  <rect class="dark" x="258" y="445" width="194" height="88" rx="10"/>
+  <text class="w" x="355" y="472" text-anchor="middle">☁️ AWS EC2 (App)</text>
+  <text class="wt" x="355" y="494" text-anchor="middle">cold-storage-logistics-</text>
+  <text class="wt" x="355" y="510" text-anchor="middle">app-server · c7i-flex.large</text>
+  <text class="wt" x="355" y="526" text-anchor="middle">systemd · us-east-2</text>
+
+  <!-- 3. AGENT -->
+  <rect class="panel" x="500" y="95" width="560" height="460" rx="18"/>
+  <text class="title" x="780" y="128" text-anchor="middle">Agent Orchestration — LangGraph</text>
+  <text class="m" x="780" y="150" text-anchor="middle">src/orchestrator.py · StateGraph(AgentState)</text>
+  <!-- graph nodes -->
+  <rect x="525" y="200" width="90" height="46" rx="23" fill="#e6f2f2" stroke="#1f7a7a" stroke-width="2"/>
+  <text class="h" x="570" y="229" text-anchor="middle">START</text>
+  <rect x="660" y="180" width="170" height="86" rx="14" fill="#0f4c5c"/>
+  <text class="w" x="745" y="212" text-anchor="middle">🧠 reasoner</text>
+  <text class="wt" x="745" y="234" text-anchor="middle">system prompt + history</text>
+  <text class="wt" x="745" y="252" text-anchor="middle">LLM.bind_tools()</text>
+  <rect x="880" y="180" width="160" height="86" rx="14" fill="#1f7a7a"/>
+  <text class="w" x="960" y="212" text-anchor="middle">🛠️ tools</text>
+  <text class="wt" x="960" y="234" text-anchor="middle">ToolNode executes</text>
+  <text class="wt" x="960" y="252" text-anchor="middle">tool_calls → ToolMessage</text>
+  <rect x="700" y="320" width="90" height="46" rx="23" fill="#e6f2f2" stroke="#1f7a7a" stroke-width="2"/>
+  <text class="h" x="745" y="349" text-anchor="middle">END</text>
+  <path class="flow" d="M615,223 L655,223"/>
+  <path class="flow" d="M830,205 L875,205"/>
+  <path class="flow" d="M880,245 L835,245"/>
+  <text class="lbl" x="853" y="196" text-anchor="middle">tool_calls</text>
+  <text class="lbl" x="857" y="264" text-anchor="middle">results</text>
+  <path class="flow" d="M745,266 L745,315"/>
+  <text class="lbl" x="738" y="296" text-anchor="end">no tool_calls →</text>
+  <text class="lbl" x="738" y="312" text-anchor="end">final answer</text>
+  <!-- memory + LLM -->
+  <rect class="card" x="525" y="395" width="240" height="138" rx="12"/>
+  <text class="h" x="645" y="422" text-anchor="middle">💾 Memory &amp; Context</text>
+  <text class="t" x="645" y="446" text-anchor="middle">MemorySaver checkpointer</text>
+  <text class="t" x="645" y="466" text-anchor="middle">per-session thread_id</text>
+  <text class="m" x="645" y="490" text-anchor="middle">prompts/system_prompt.txt</text>
+  <text class="t" x="645" y="514" text-anchor="middle">multi-turn conversations</text>
+  <rect x="790" y="395" width="250" height="138" rx="12" fill="#13293d"/>
+  <text class="w" x="915" y="425" text-anchor="middle">🐋 LLM — DeepSeek API</text>
+  <text class="wt" x="915" y="450" text-anchor="middle">deepseek-v4-flash · temperature 0</text>
+  <text class="wt" x="915" y="470" text-anchor="middle">OpenAI-compatible endpoint</text>
+  <text class="wt" x="915" y="490" text-anchor="middle">swappable: GPT-4o / Ollama qwen2.5</text>
+  <text class="wt" x="915" y="514" text-anchor="middle">~US$0.01 per 25 requests</text>
+  <path class="flow" d="M915,395 L812,270" stroke-dasharray="5 4"/>
+  <text class="lbl" x="880" y="330">LLM call</text>
+
+  <!-- 4. TOOLS -->
+  <rect class="panel" x="1090" y="95" width="240" height="460" rx="18"/>
+  <text class="title" x="1210" y="128" text-anchor="middle">Agent Tools</text>
+  <text class="m" x="1210" y="150" text-anchor="middle">src/agent_tools.py</text>
+  <rect class="card" x="1105" y="170" width="210" height="110" rx="10"/>
+  <text class="h" x="1210" y="197" text-anchor="middle">🗄️ query_telemetry_db</text>
+  <text class="t" x="1210" y="220" text-anchor="middle">Text-to-SQL, SELECT-only</text>
+  <text class="t" x="1210" y="240" text-anchor="middle">fleet temperature, risk,</text>
+  <text class="t" x="1210" y="260" text-anchor="middle">delay, port congestion</text>
+  <rect class="card" x="1105" y="295" width="210" height="110" rx="10"/>
+  <text class="h" x="1210" y="322" text-anchor="middle">🌦️ fetch_corridor_</text>
+  <text class="h" x="1210" y="342" text-anchor="middle">conditions</text>
+  <text class="t" x="1210" y="365" text-anchor="middle">live weather by GPS +</text>
+  <text class="t" x="1210" y="385" text-anchor="middle">corridor risk index</text>
+  <rect class="card" x="1105" y="420" width="210" height="115" rx="10"/>
+  <text class="h" x="1210" y="447" text-anchor="middle">📚 search_compliance_</text>
+  <text class="h" x="1210" y="467" text-anchor="middle">sop</text>
+  <text class="t" x="1210" y="490" text-anchor="middle">RAG semantic search over</text>
+  <text class="t" x="1210" y="510" text-anchor="middle">operating procedures</text>
+
+  <!-- 5. DATA SOURCES -->
+  <rect class="panel" x="1360" y="95" width="220" height="460" rx="18"/>
+  <text class="title" x="1470" y="128" text-anchor="middle">Data Sources</text>
+  <rect class="dark" x="1375" y="170" width="190" height="110" rx="10"/>
+  <text class="w" x="1470" y="196" text-anchor="middle">🐬 SQL Server 2022</text>
+  <text class="wt" x="1470" y="218" text-anchor="middle">Docker on EC2 fde-estudos</text>
+  <text class="wt" x="1470" y="238" text-anchor="middle">FDE_VIEWS.VW_ACTIVE_FLEET</text>
+  <text class="wt" x="1470" y="258" text-anchor="middle">32k telemetry rows</text>
+  <rect class="card" x="1375" y="295" width="190" height="110" rx="10"/>
+  <text class="h" x="1470" y="325" text-anchor="middle">🌍 Open-Meteo</text>
+  <text class="t" x="1470" y="350" text-anchor="middle">public REST API</text>
+  <text class="t" x="1470" y="370" text-anchor="middle">current_weather</text>
+  <rect class="card" x="1375" y="420" width="190" height="115" rx="10"/>
+  <text class="h" x="1470" y="450" text-anchor="middle">🌲 Pinecone</text>
+  <text class="t" x="1470" y="475" text-anchor="middle">serverless vector DB</text>
+  <text class="m" x="1470" y="498" text-anchor="middle">fde-sop-index-local</text>
+  <text class="t" x="1470" y="520" text-anchor="middle">BAAI/bge-m3 · 1024-d</text>
+
+  <!-- main flow arrows -->
+  <path class="flow" d="M210,300 L235,300"/>
+  <path class="flow" d="M470,290 L520,223"/>
+  <path class="flow" d="M520,250 C480,300 480,330 475,360" />
+  <text class="lbl" x="478" y="250">ask</text>
+  <path class="flow" d="M1040,223 L1100,223"/>
+  <path class="flow" d="M1040,233 L1100,345"/>
+  <path class="flow" d="M1040,243 L1100,470"/>
+  <path class="flow" d="M1315,225 L1370,225"/>
+  <path class="flow" d="M1315,350 L1370,350"/>
+  <path class="flow" d="M1315,477 L1370,477"/>
+
+  <!-- BOTTOM ROW -->
+  <!-- Ingestion -->
+  <rect class="panel" x="20" y="600" width="450" height="320" rx="18"/>
+  <text class="title" x="245" y="634" text-anchor="middle">Data Ingestion · scripts/</text>
+  <rect class="card" x="40" y="655" width="410" height="115" rx="10"/>
+  <text class="h" x="60" y="683">📄 Legacy telemetry (batch)</text>
+  <text class="t" x="60" y="707">CSV → rename to legacy columns → SQL table</text>
+  <text class="m" x="60" y="730">ingest_legacy_data.py</text>
+  <text class="m" x="60" y="752">→ dbo.TBL_SC_FLEET_HIST_RAW</text>
+  <rect class="card" x="40" y="785" width="410" height="115" rx="10"/>
+  <text class="h" x="60" y="813">📑 SOP knowledge base (RAG)</text>
+  <text class="t" x="60" y="837">MD/PDF/XLSX → chunks → embeddings → vectors</text>
+  <text class="m" x="60" y="860">ingest_sop_pinecone.py</text>
+  <text class="t" x="60" y="882">hash cache = only changed files re-indexed</text>
+
+  <!-- Governance -->
+  <rect class="panel" x="500" y="600" width="560" height="320" rx="18"/>
+  <text class="title" x="780" y="634" text-anchor="middle">Governance &amp; Security</text>
+  <rect class="card" x="520" y="655" width="255" height="115" rx="10"/>
+  <text class="h" x="647" y="683" text-anchor="middle">🔐 Least privilege</text>
+  <text class="t" x="647" y="707" text-anchor="middle">agent login USR_FDE_RO</text>
+  <text class="t" x="647" y="727" text-anchor="middle">SELECT on semantic view only</text>
+  <text class="t" x="647" y="747" text-anchor="middle">DENY raw table + writes</text>
+  <rect class="card" x="785" y="655" width="255" height="115" rx="10"/>
+  <text class="h" x="912" y="683" text-anchor="middle">🧾 Agent Audit Log</text>
+  <text class="t" x="912" y="707" text-anchor="middle">FDE_VIEWS.AgentAuditLog</text>
+  <text class="t" x="912" y="727" text-anchor="middle">session · node · tool · payload</text>
+  <text class="t" x="912" y="747" text-anchor="middle">full reasoning traceability</text>
+  <rect class="card" x="520" y="785" width="520" height="115" rx="10"/>
+  <text class="h" x="780" y="813" text-anchor="middle">🧩 Semantic layer &amp; guardrails</text>
+  <text class="t" x="780" y="837" text-anchor="middle">VW_ACTIVE_FLEET exposes business-friendly names over cryptic legacy columns</text>
+  <text class="t" x="780" y="859" text-anchor="middle">SELECT-only validation in the SQL tool · secrets in .env / GitHub Secrets</text>
+  <text class="m" x="780" y="882" text-anchor="middle">scripts/setup_security_and_view.sql</text>
+
+  <!-- CI/CD -->
+  <rect class="panel" x="1090" y="600" width="490" height="320" rx="18"/>
+  <text class="title" x="1335" y="634" text-anchor="middle">CI/CD · GitHub Actions → EC2</text>
+  <rect class="card" x="1110" y="660" width="95" height="80" rx="10"/>
+  <text class="ic" x="1157" y="698" text-anchor="middle" font-size="24">🐙</text>
+  <text class="t" x="1157" y="725" text-anchor="middle">git push</text>
+  <rect class="card" x="1225" y="660" width="95" height="80" rx="10"/>
+  <text class="ic" x="1272" y="698" text-anchor="middle" font-size="24">🔑</text>
+  <text class="t" x="1272" y="725" text-anchor="middle">AWS OIDC</text>
+  <rect class="card" x="1340" y="660" width="105" height="80" rx="10"/>
+  <text class="ic" x="1392" y="698" text-anchor="middle" font-size="24">🚪</text>
+  <text class="t" x="1392" y="725" text-anchor="middle">temp SSH /32</text>
+  <rect class="card" x="1465" y="660" width="95" height="80" rx="10"/>
+  <text class="ic" x="1512" y="698" text-anchor="middle" font-size="24">🚀</text>
+  <text class="t" x="1512" y="725" text-anchor="middle">ff-merge</text>
+  <path class="flow" d="M1205,700 L1222,700"/>
+  <path class="flow" d="M1320,700 L1337,700"/>
+  <path class="flow" d="M1445,700 L1462,700"/>
+  <rect class="dark" x="1110" y="760" width="450" height="140" rx="10"/>
+  <text class="w" x="1335" y="790" text-anchor="middle">Zero long-lived AWS keys · ephemeral access</text>
+  <text class="wt" x="1335" y="816" text-anchor="middle">1. role assumed via OIDC (no access keys stored)</text>
+  <text class="wt" x="1335" y="838" text-anchor="middle">2. SSH opened only for the runner IP, then revoked</text>
+  <text class="wt" x="1335" y="860" text-anchor="middle">3. systemctl restart streamlit + /_stcore/health check</text>
+  <text class="wt" x="1335" y="882" text-anchor="middle">.github/workflows/deploy.yml</text>
+
+  <!-- cross links -->
+  <path class="flowg" d="M440,600 L440,578 L1470,578 L1470,560"/>
+  <text class="lbl" x="1080" y="572">ingestion feeds SQL Server &amp; Pinecone</text>
+  <path class="flowg" d="M912,555 L912,650"/>
+  <text class="lbl" x="922" y="596">every node / tool step → audit log</text>
+</svg>
