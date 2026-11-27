@@ -213,7 +213,7 @@ if app_mode == "🧊 Dispatch Console":
     # ------------------------------------------
     # TELA 1: HISTÓRICO DO CHAT E EXECUÇÃO DO AGENTE
     # ------------------------------------------
-    st.title("Cold-Chain Incident Control Dashboard")
+    st.title("Cold-Chain Incident Control Dashboard (Project FDE)")
     st.caption("Production Data Engineering Pipeline • Real-Time Decision Optimization Platform")
 
     # Streamlit reexecuta este arquivo após interações. Primeiro redesenhamos
