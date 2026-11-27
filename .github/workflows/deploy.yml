@@ -1,125 +1,171 @@
-# PARA QUE SERVE ESTE ARQUIVO?
-# Imagine que você alterou um botão em src/ui.py e fez commit e push.
-# O código novo chegou ao GitHub, mas a EC2 ainda está com a cópia antiga.
-# Este arquivo ensina o GitHub a entrar na EC2 e atualizar a aplicação.
-# Essa atualização da aplicação no servidor é chamada de DEPLOY.
-#
-# O CAMINHO COMPLETO:
-# Seu Windows --git push--> GitHub --você aciona a rotina--> EC2 atualizada.
-# O nome dessa rotina no GitHub Actions é WORKFLOW.
-#
-# EXEMPLO PASSO A PASSO:
-# 1. Você faz git push e envia a nova versão ao GitHub.
-# 2. Você abre Actions e clica em Run workflow.
-# 3. Um computador temporário do GitHub inicia a automação.
-# 4. Ele usa SSH para entrar na EC2 da aplicação.
-# 5. Na EC2, git pull baixa o código novo e systemctl reinicia o Streamlit.
-# 6. Você abre a aplicação atualizada no navegador.
-#
-# ONDE ENTRAM CI E CD?
-# CI = integração contínua: integrar mudanças e verificá-las com testes.
-# CD = entrega ou implantação contínua: preparar/publicar novas versões.
-# Aqui temos uma rotina de deploy acionada manualmente, sem testes de CI.
-# Fazer push, sozinho, NÃO inicia esta rotina.
+# Push na main inicia o deploy; Run workflow também fica disponível.
+# Configure a role OIDC antes do primeiro push: docs/guia-deploy-automatico.md.
+name: Deploy EC2 App
 
-# 1. QUAL NOME VOCÊ VÊ NO GITHUB?
-# Este título aparece na aba Actions do seu repositório.
-name: Enterprise Manual Deploy
-
-# 2. QUANDO O GITHUB DEVE COMEÇAR?
-# on significa: "inicie quando acontecer o evento indicado abaixo".
 on:
-  # workflow_dispatch permite que você clique em Run workflow para iniciar.
+  push:
+    branches: [main]
   workflow_dispatch:
-    # inputs são os campos do formulário mostrado antes da execução.
-    inputs:
-      # Este campo recebe o nome de um Environment cadastrado no GitHub.
-      # Pense nele como uma pasta de configurações do destino de deploy.
-      environment:
-        # Texto que identifica o campo no formulário: "Ambiente de destino".
-        description: 'Target Environment'
-        # true = o campo é obrigatório.
-        required: true
-        # Valor que já aparece preenchido; você pode alterá-lo no formulário.
-        default: 'FDE-YT-Cold'
 
-# 3. QUAL TRABALHO SERÁ FEITO, E EM QUAL COMPUTADOR?
-# jobs contém os trabalhos da rotina. Este arquivo tem apenas um trabalho.
+permissions:
+  contents: read
+  id-token: write
+
+# Uma execução por vez; a anterior termina a limpeza antes da próxima.
+concurrency:
+  group: deploy-vm-app
+  cancel-in-progress: false
+
 jobs:
-  # deploy é o nome interno escolhido para esse trabalho.
   deploy:
-    # O GitHub fornece um computador temporário com Ubuntu: o RUNNER.
-    # Ele executa a automação e, mais adiante, conecta à sua EC2 por SSH.
-    # Esse computador é separado do seu Windows e das suas duas EC2.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    # Leia ${{ inputs.environment }} como: "use o valor do formulário".
-    # Exemplo: se você deixou FDE-YT-Cold, o job usa esse Environment.
-    # Ele pode guardar secrets (credenciais) e regras de aprovação.
-    # Environment do GitHub, arquivo .env e venv Python são coisas diferentes.
-    environment: ${{ inputs.environment }}
-    # steps = passos desse trabalho, executados na ordem em que aparecem.
-    steps:
-      # 4. PRIMEIRO PASSO: OBTER UMA CÓPIA DO REPOSITÓRIO NO RUNNER.
-      # name é apenas o título do passo, mostrado durante a execução.
-      - name: Checkout Repository
-        # uses significa: "execute esta ferramenta pronta" (uma ACTION).
-        # actions/checkout obtém o repositório; @v4 escolhe a versão da ferramenta.
-        # Essa cópia fica no runner. O git pull abaixo atualizará a cópia da EC2.
-        uses: actions/checkout@v4
+    environment: FDE-YT-COLD
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    env:
+      AWS_REGION: us-east-2
+      AWS_PAGER: ''
+      AWS_RETRY_MODE: standard
+      AWS_MAX_ATTEMPTS: '3'
+      EC2_SECURITY_GROUP_ID: sg-0f4e7a8c276c7f2b2
+      RULE_DESCRIPTION: github-actions:${{ github.repository_id }}:${{ github.run_id }}:${{ github.run_attempt }}
 
-      # 5. SEGUNDO PASSO: ENTRAR NA EC2 DA APLICAÇÃO POR SSH.
-      - name: Deploy to EC2 via SSH
-        # Esta ferramenta faz a conexão SSH e executa os comandos na EC2.
-        # É semelhante a você entrar por SSH e digitar os comandos no terminal.
-        uses: appleboy/ssh-action@v1.0.3
-        # with contém as informações necessárias para essa conexão.
+    steps:
+      - name: Check deployment configuration
+        env:
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          for variable in AWS_ROLE_ARN EC2_HOST EC2_USER EC2_SSH_KEY; do
+            if [[ -z "${!variable}" ]]; then
+              echo "::error::Configure o secret $variable no ambiente FDE-YT-COLD."
+              exit 1
+            fi
+          done
+
+      # Credenciais temporárias da AWS, sem access key permanente.
+      - name: Authenticate to AWS with OIDC
+        id: aws
+        uses: aws-actions/configure-aws-credentials@v6.3.1
         with:
-          # PARA ONDE conectar? IP ou DNS da EC2 nova, onde roda o Streamlit.
-          # Leia ${{ secrets.EC2_HOST }} como: "busque o segredo EC2_HOST".
-          # Você cadastra esses secrets no GitHub; não escreve seus valores aqui.
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          allowed-account-ids: '464453619990'
+          role-session-name: GitHubDeploy-${{ github.run_id }}
+          role-duration-seconds: 3600
+
+      - name: Identify runner IPv4
+        id: runner
+        run: |
+          set -euo pipefail
+          runner_ip=$(curl -4 --fail --silent --show-error --max-time 10 --retry 2 https://checkip.amazonaws.com)
+          python3 -c 'import ipaddress, sys; ipaddress.IPv4Address(sys.argv[1])' "$runner_ip"
+          echo "cidr=$runner_ip/32" >> "$GITHUB_OUTPUT"
+
+      # Libera só TCP/22 do IPv4 deste runner; preserva as regras do seu PC.
+      - name: Allow temporary SSH access
+        env:
+          RUNNER_CIDR: ${{ steps.runner.outputs.cidr }}
+        run: |
+          set -euo pipefail
+          permissions=$(jq -cn --arg cidr "$RUNNER_CIDR" --arg description "$RULE_DESCRIPTION" \
+            '[{IpProtocol:"tcp",FromPort:22,ToPort:22,IpRanges:[{CidrIp:$cidr,Description:$description}]}]')
+          aws ec2 authorize-security-group-ingress \
+            --group-id "$EC2_SECURITY_GROUP_ID" \
+            --ip-permissions "$permissions" > /dev/null
+
+      - name: Wait for SSH connectivity
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import socket
+          import time
+
+          for attempt in range(12):
+              try:
+                  with socket.create_connection((os.environ["EC2_HOST"], 22), timeout=5):
+                      break
+              except OSError:
+                  if attempt == 11:
+                      raise SystemExit("SSH indisponível: confira EC2_HOST, estado da VM e security group.")
+                  time.sleep(5)
+          PY
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        with:
           host: ${{ secrets.EC2_HOST }}
-          # COM QUAL USUÁRIO? No seu caso, normalmente ubuntu.
           username: ${{ secrets.EC2_USER }}
-          # COM QUAL CHAVE? O secret guarda o CONTEÚDO completo da chave privada.
-          # Exemplo: conteúdo do linux test.pem, não o caminho dele no Windows.
-          # Essa chave permite entrar no servidor; não é uma senha do SQL Server.
           key: ${{ secrets.EC2_SSH_KEY }}
-          # 6. JÁ DENTRO DA EC2: EXECUTAR OS COMANDOS DE ATUALIZAÇÃO.
-          # script é a sequência de comandos. O | permite escrever várias linhas.
+          envs: DEPLOY_SHA
+          command_timeout: 10m
           script: |
-            # Entra na pasta do projeto, que já deve existir na EC2.
+            set -eu
             cd /home/ubuntu/cold-chain-logistics-FDE-Project
 
-            # Traz as atualizações de main do repositório remoto chamado origin.
-            # É aqui que a EC2 recebe o código que você enviou com git push.
-            # Mantenha a cópia da EC2 na branch main: pull não troca de branch.
-            git pull origin main
+            # Exige main sem alterações locais rastreadas; não apaga trabalho na VM.
+            test "$(git branch --show-current)" = main
+            git diff --quiet
+            git diff --cached --quiet
+            git fetch origin main
+            git merge-base --is-ancestor "$DEPLOY_SHA" origin/main
+            git merge --ff-only "$DEPLOY_SHA"
+            test "$(git rev-parse HEAD)" = "$DEPLOY_SHA"
 
-            # Ativa o ambiente Python já criado, somente nesta sessão de terminal.
-            # É o mesmo comando que faz aparecer (venv) no seu terminal SSH.
-            source venv/bin/activate
+            # O serviço já aponta para o Python do venv.
+            sudo -n systemctl restart streamlit
+            curl --fail --silent --show-error --retry 12 --retry-delay 5 \
+              --retry-connrefused --connect-timeout 3 --max-time 5 \
+              http://127.0.0.1:8501/_stcore/health
+            sudo -n systemctl is-active --quiet streamlit
+            echo "Deploy concluído: $DEPLOY_SHA"
 
-            # Pede ao gerenciador de serviços do Linux (systemd) que reinicie
-            # o serviço chamado streamlit para carregar a versão atualizada.
-            # O serviço precisa ter sido criado antes em streamlit.service.
-            # O Python usado pelo serviço é definido nesse arquivo de serviço;
-            # não depende da ativação do venv na linha anterior.
-            sudo systemctl restart streamlit
-
-# O QUE PRECISA ESTAR PRONTO PARA ESTA ROTINA FUNCIONAR?
-# - Secrets EC2_HOST, EC2_USER e EC2_SSH_KEY cadastrados no GitHub.
-# - Acesso SSH do runner à EC2. Liberar só seu IP pessoal não libera o runner.
-# - Repositório, venv, dependências e .env já preparados na EC2.
-# - Serviço streamlit instalado e permissão para reiniciá-lo com sudo sem senha.
-#
-# LIMITES DESTE ARQUIVO:
-# - Não executa pip install: bibliotecas novas precisam ser instaladas à parte.
-# - Não testa se a aplicação funciona depois de reiniciar.
-# - Não configura parada imediata em falhas intermediárias (set -e).
-# - Sempre pede origin main, mesmo se você escolher outra branch no formulário.
-# - O checkout inicial não é usado diretamente pelos comandos remotos.
-#
-# Referências para estudar depois:
-# https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
-# https://github.com/actions/checkout/tree/v4
-# https://github.com/appleboy/ssh-action/tree/v1.0.3
+      # Executa também quando o deploy falha. Busca pela descrição exclusiva,
+      # mesmo se a resposta de criação da regra tiver se perdido na rede.
+      - name: Remove temporary SSH access
+        if: ${{ always() && steps.aws.outcome == 'success' && steps.runner.outcome == 'success' }}
+        timeout-minutes: 3
+        env:
+          RUNNER_CIDR: ${{ steps.runner.outputs.cidr }}
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4; do
+            rules=$(aws ec2 describe-security-group-rules \
+              --filters "Name=group-id,Values=$EC2_SECURITY_GROUP_ID" --output json)
+            rule_ids=$(jq -r --arg description "$RULE_DESCRIPTION" --arg cidr "$RUNNER_CIDR" \
+              '.SecurityGroupRules[] | select(.Description == $description and .CidrIpv4 == $cidr
+                and .IsEgress == false and .IpProtocol == "tcp" and .FromPort == 22 and .ToPort == 22)
+                | .SecurityGroupRuleId' <<< "$rules")
+            if [[ -z "$rule_ids" ]]; then
+              # Repete a leitura para tolerar a consistência eventual da API.
+              if [[ "$attempt" -ge 2 ]]; then
+                echo 'Nenhuma regra SSH desta execução permanece no grupo.'
+                exit 0
+              fi
+            else
+              while IFS= read -r rule_id; do
+                if ! result=$(aws ec2 revoke-security-group-ingress \
+                  --group-id "$EC2_SECURITY_GROUP_ID" \
+                  --security-group-rule-ids "$rule_id" 2>&1); then
+                  # Uma leitura defasada pode devolver uma regra já removida.
+                  if [[ "$result" != *InvalidSecurityGroupRuleId.NotFound* ]]; then
+                    echo "$result" >&2
+                    exit 1
+                  fi
+                fi
+              done <<< "$rule_ids"
+            fi
+            sleep 5
+          done
+          echo "::error::Confira e remova a regra com descrição $RULE_DESCRIPTION no grupo $EC2_SECURITY_GROUP_ID."
+          exit 1

@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::464453619990:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          "token.actions.githubusercontent.com:sub": [
+            "repo:Gabrielxdev/cold-chain-logistics-FDE:environment:FDE-YT-COLD",
+            "repo:Gabrielxdev@79329058/cold-chain-logistics-FDE@1436480598:environment:FDE-YT-COLD"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ManageAppSecurityGroupIngress",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:RevokeSecurityGroupIngress"
+      ],
+      "Resource": "arn:aws:ec2:us-east-2:464453619990:security-group/sg-0f4e7a8c276c7f2b2"
+    },
+    {
+      "Sid": "ReadSecurityGroupRulesInOhio",
+      "Effect": "Allow",
+      "Action": "ec2:DescribeSecurityGroupRules",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:RequestedRegion": "us-east-2"
+        }
+      }
+    }
+  ]
+}
