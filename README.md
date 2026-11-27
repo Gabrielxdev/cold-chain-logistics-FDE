@@ -1,4 +1,4 @@
-# ❄️ Cold-Chain Logistics — AI Forward Deployed Engineer Agent
+# Cold-Chain Logistics — AI Forward Deployed Engineer Agent
 
 > An enterprise AI agent that helps logistics dispatchers detect cold-chain breaches, check live corridor conditions and apply company SOPs — in plain language, with full audit traceability.
 
@@ -13,23 +13,23 @@
 
 ---
 
-## 📌 Table of Contents
+## Table of Contents
 
-1. [The business problem](#-the-business-problem)
-2. [Architecture](#-architecture)
-3. [End-to-end flow: start → middle → end](#-end-to-end-flow-start--middle--end)
-4. [Agent tools](#-agent-tools)
-5. [Tech stack](#-tech-stack)
-6. [Repository structure](#-repository-structure)
-7. [Getting started](#-getting-started)
-8. [Deployment & infrastructure](#-deployment--infrastructure)
-9. [Security & governance](#-security--governance)
-10. [Screenshots](#-screenshots)
-11. [Roadmap](#-roadmap)
+1. [The business problem](#the-business-problem)
+2. [Architecture](#architecture)
+3. [End-to-end flow: start → middle → end](#end-to-end-flow-start--middle--end)
+4. [Agent tools](#agent-tools)
+5. [Tech stack](#tech-stack)
+6. [Repository structure](#repository-structure)
+7. [Getting started](#getting-started)
+8. [Deployment & infrastructure](#deployment--infrastructure)
+9. [Security & governance](#security--governance)
+10. [Screenshots](#screenshots)
+11. [Roadmap](#roadmap)
 
 ---
 
-## 🎯 The business problem
+## The business problem
 
 A refrigerated-freight operator runs a fleet whose telemetry lives in a **legacy SQL Server** with cryptic column names (`IOT_TEMP_VAL_C`, `PRT_CNG_LVL`, `RISK_CLS_TXT`…). Its operating rules live in a **Standard Operating Procedure (SOP)** document. A night-shift dispatcher has to cross three worlds under time pressure:
 
@@ -43,7 +43,7 @@ This project delivers what a **Forward Deployed Engineer** would build on site: 
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ![Architecture](docs/images/architecture.png)
 
@@ -60,7 +60,7 @@ This project delivers what a **Forward Deployed Engineer** would build on site: 
 
 ---
 
-## 🔄 End-to-end flow: start → middle → end
+## End-to-end flow: start → middle → end
 
 ```mermaid
 sequenceDiagram
@@ -97,12 +97,12 @@ sequenceDiagram
     UI-->>D: Action plan
 ```
 
-### 1️⃣ Start — the question
+### 1. Start — the question
 
 1. The dispatcher opens the **Dispatch Console** and types a question, e.g. *"Which High Risk shipments need escalation tonight, and what does the SOP require?"*
 2. `ui.py` wraps it in a `HumanMessage` and calls `fde_agent.stream(...)` with the session's `thread_id`. The `MemorySaver` checkpointer restores the conversation history for that thread, so follow-up questions keep context.
 
-### 2️⃣ Middle — the reasoning loop
+### 2. Middle — the reasoning loop
 
 3. The **`reasoner`** node sends the system prompt (`src/prompts/system_prompt.txt`) + history to **DeepSeek**, with the three tools bound via `bind_tools`.
 4. The LLM decides — it is not a fixed pipeline — whether it needs data. If it emits `tool_calls`, `tools_condition` routes to the **`tools`** node (`ToolNode`), which executes them:
@@ -112,14 +112,14 @@ sequenceDiagram
 5. Results return as `ToolMessage`s to the reasoner, which can call more tools (zero, one or many, in any order) until it has enough evidence.
 6. Meanwhile, the UI streams each step as live progress and writes it to **`FDE_VIEWS.AgentAuditLog`** (session, node, tool, payload).
 
-### 3️⃣ End — the answer and the trail
+### 3. End — the answer and the trail
 
 7. When the LLM replies without `tool_calls`, the graph reaches `END`. The dispatcher receives an **action plan** grounded in the data and citing the SOP section.
 8. A supervisor can open **Security & Audit Logs**, authenticate as admin, and inspect every reasoning step and tool payload of that session — full traceability of what the agent saw and did.
 
 ---
 
-## 🧰 Agent tools
+## Agent tools
 
 | Tool | Purpose | Backend | Guardrail |
 |---|---|---|---|
@@ -129,7 +129,7 @@ sequenceDiagram
 
 ---
 
-## 🛠️ Tech stack
+## Tech stack
 
 - **Agent framework:** LangGraph, LangChain
 - **LLM:** DeepSeek API (`deepseek-v4-flash`) · alternatives: OpenAI GPT-4o, Ollama `qwen2.5:7b` (set with `Agent_llm`)
@@ -142,7 +142,7 @@ sequenceDiagram
 
 ---
 
-## 📁 Repository structure
+## Repository structure
 
 ```
 .
@@ -166,7 +166,7 @@ sequenceDiagram
 
 ---
 
-## 🚀 Getting started
+## Getting started
 
 ### Prerequisites
 
@@ -233,7 +233,7 @@ python src/orchestrator.py
 
 ---
 
-## ☁️ Deployment & infrastructure
+## Deployment & infrastructure
 
 The solution runs on **two EC2 instances in `us-east-2`**, separating compute from data:
 
@@ -254,7 +254,7 @@ Every push to `main` deploys automatically:
 
 ---
 
-## 🔐 Security & governance
+## Security & governance
 
 - **Least privilege at the database:** the agent connects as `USR_FDE_RO`, which can only `SELECT` the semantic view; the raw table and all writes on `dbo` are explicitly denied.
 - **Defense in depth on Text-to-SQL:** the tool rejects any statement that is not a `SELECT` before reaching the database.
@@ -265,7 +265,7 @@ Every push to `main` deploys automatically:
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 **Dispatch Console** — the agent cross-checks telemetry against the SOP, delivers an action plan and flags data-quality caveats it found along the way.
 
@@ -277,7 +277,7 @@ Every push to `main` deploys automatically:
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 - [ ] Persistent checkpointer (SQLite/Postgres) so conversations survive restarts
 - [ ] Private networking between app and database (no public DB exposure, AWS Secrets Manager)
@@ -287,8 +287,8 @@ Every push to `main` deploys automatically:
 
 ---
 
-## 👤 Author
+## Author
 
 **Gabriel Thiago** — [GitHub @Gabrielxdev](https://github.com/Gabrielxdev)
 
-If this project was useful, leave a ⭐!
+If this project was useful, leave a star!
